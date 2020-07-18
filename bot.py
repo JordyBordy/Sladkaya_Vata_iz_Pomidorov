@@ -1,9 +1,12 @@
+# Название бота @JordyBordyTestbot  / Bot Name @JordyBordyTestbot
+
 import telebot
 import random
 import sys
 from random import randint
 import pickle
 from threading import Timer
+import time
 
 from secret import token
 
@@ -21,34 +24,59 @@ try:
 
     #Таймер
     def timer():
+        global time2
         for i in Users:
-            if Users[i].stamina < 20:
-                Users[i].stamina += 1
-        time = Timer(60 * 1, timer) 
-        time.start()
+            if not(i == '0'):
+                if Users[i].stamina < Users[i].stamina_max:
+                    Users[i].stamina += 1
+                    if Users[i].stamina == Users[i].stamina_max:
+                        bot.send_message(int(i), 'Твоя выносливость полностью востановилась', reply_markup = keyboards.main)
+                Users[i].income()
+                
+        file = open('Users.data', 'wb')
+        pickle.dump(Users, file)
+        file.close()
+        time2 = int(time.time())          
+        time1 = Timer(60 * 1, timer) 
+        time1.start()
 
     #Загрузка "бд"
     file = open('Users.data', 'rb')
     Users = pickle.load(file)
     file.close()
 
-    time = Timer(60 * 1, timer)
-    time.start()
+    time1 = Timer(60 * 1, timer)
+    time1.start()
+    time2 = int(time.time())
 
     bot = telebot.TeleBot(token)
 
     for i in Users:
         if not(i == '0'):
-            if not(hasattr(Users[i], 'current_keyboard')) or not(hasattr(Users[i], 'helmet')):
+            if not(hasattr(Users[i], 'percent')):
                 username = Users[i].username
                 balance = Users[i].balance
                 pickaxe = Users[i].pickaxe
                 stamina = Users[i].stamina
+                helmet = Users[i].helmet
+                vest = Users[i].vest
+                pants = Users[i].pants
+                boots = Users[i].boots
+                bank_account = Users[i].bank_account
+                stamina_max = Users[i].stamina_max
                 Users[i] = Player(username)
                 Users[i].balance = balance
                 Users[i].stamina = stamina
                 Users[i].pickaxe = pickaxe
+                Users[i].helmet = helmet
+                Users[i].vest = vest
+                Users[i].pants = pants
+                Users[i].boots = boots
+                Users[i].bank_account = bank_account
                 bot.send_message(int(i), 'Пока тебя не было, были добавлены новые функции.', reply_markup = keyboards.main)
+
+    for i in Users:
+        Users[i].recount_stamina_max()
 
     #Функция запуска команды старт
     @bot.message_handler(commands=['start'])
@@ -82,7 +110,8 @@ try:
         elif message.text == 'Копать ⛏':
             res = Users[str(message.chat.id)].mine(NUMBER_OF_CHANCE)
             if res == 0:
-                bot.send_message(message.chat.id, 'Вы устали, отдохните')
+                current_time = int(time.time())
+                bot.send_message(message.chat.id, f'Вы устали, отдохните.\nЭнергия востановится через {60 - int((current_time - time2))} секунд.')
             elif res == 'creeper':
                 creeper_Igor = open('C:\JordyBordy\Всякая херня\Игорь Крипер.png', 'rb')   
                 bot.send_photo(message.chat.id, creeper_Igor, caption = f'Вы встретили крипера Игоря!\nВаша выносливость:{Users[str(message.chat.id)].stamina}/{Users[str(message.chat.id)].stamina_max}.')
@@ -91,7 +120,9 @@ try:
                 bot.send_message(message.chat.id, res + f'\nВаша выносливость:{Users[str(message.chat.id)].stamina}/{Users[str(message.chat.id)].stamina_max}.')
             file = open('Users.data', 'wb')
             pickle.dump(Users, file)
-            file.close()                    
+            file.close()
+
+        #Вывод описания кирок                        
         elif message.text == 'Каменная кирка':
             stone_pickaxe = open('C:\Питон\Bot\Photos\pickaxes\stone_pickaxe.png', 'rb')
             bot.send_photo(message.chat.id, stone_pickaxe, 'Стоимость: 1000$\nУвеличивает шанс выпадения редких руд на 2%', reply_markup = keyboards.buy_stone_pickaxe)
@@ -124,17 +155,22 @@ try:
         #1 Одежда для шахтера
         #1.1 Каска    
         elif message.text == 'Старая каска':
-            old_helmet = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
+            old_helmet = open('C:\Питон\Bot\Photos\miner\helmets\old_helmet.png', 'rb')
             bot.send_photo(message.chat.id, old_helmet, 'Стоимость: 500$,\nДобавляет 5 очков к максимальной выносливости', reply_markup = keyboards.buy_old_helmet)
+            old_helmet.close()
         elif message.text == 'Обычная каска':
-            common_helmet = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
+            common_helmet = open('\Питон\Bot\Photos\miner\helmets\common_helmet.png', 'rb')
             bot.send_photo(message.chat.id, common_helmet, 'Стоимость: 1000$,\nДобавляет 10 очков к максимальной выносливости', reply_markup = keyboards.buy_common_helmet)
+            common_helmet.close()
         elif message.text == 'Каска с фонарём':
-            helmet_with_lamp = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
+            helmet_with_lamp = open('\Питон\Bot\Photos\miner\helmets\helmet_with_lamp.png', 'rb')
             bot.send_photo(message.chat.id, helmet_with_lamp, 'Стоимость: 2000$,\nДобавляет 15 очков к максимальной выносливости', reply_markup = keyboards.buy_helmet_with_lamp)
+            helmet_with_lamp.close()
         elif message.text == 'Современная каска':
-            modern_helmet = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
+            modern_helmet = open('\Питон\Bot\Photos\miner\helmets\modern_helmet.png', 'rb')
             bot.send_photo(message.chat.id, modern_helmet, 'Стоимость: 4000$,\nДобавляет 20 очков к максимальной выносливости', reply_markup = keyboards.buy_modern_helmet)
+            modern_helmet.close()
+
         #1.2 Жилетка    
         elif message.text == 'Рваная жилетка':
             ragged_vest = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
@@ -148,6 +184,7 @@ try:
         elif message.text == 'Непромокаемая тёплая жилетка':
             waterproof_warm_vest = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
             bot.send_photo(message.chat.id, waterproof_warm_vest, 'Стоимость: 4000$,\nДобавляет 20 очков к максимальной выносливости', reply_markup = keyboards.buy_waterproof_warm_vest)
+        
         #1.3 Штаны 
         elif message.text == 'Летние шорты':
             summer_shorts = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
@@ -161,6 +198,7 @@ try:
         elif message.text == 'Непромокаемые тёплые штаны':
             waterproof_warm_pants = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
             bot.send_photo(message.chat.id, waterproof_warm_pants, 'Стоимость: 4000$,\nДобавляет 20 очков к максимальной выносливости', reply_markup = keyboards.buy_waterproof_warm_pants)
+        
         #1.4 Ботинки 
         elif message.text == 'Тапочки':
             slippers = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
@@ -175,12 +213,112 @@ try:
             expensive_shoes = open('C:\JordyBordy\Всякая херня\Игорь хэд.png', 'rb')
             bot.send_photo(message.chat.id, expensive_shoes, 'Стоимость: 4000$,\nДобавляет 20 очков к максимальной выносливости', reply_markup = keyboards.buy_expensive_shoes)                        
         
+        #Вывод описания вкладов в банке
+        elif message.text == 'Открыть вклад':
+            сontribution = open('C:\Питон\Bot\Photos/bank\money3.png', 'rb')
+            bot.send_photo(message.chat.id, сontribution, 'Сумма открытия вклада=1000$\nДоход +0,1% в миннуту от суммы вклада', reply_markup = keyboards.contribution)
+            сontribution.close() 
+        elif message.text == 'Ваш вклад':
+            if Users[str(message.chat.id)].bank_account == 0:
+                bot.send_message(message.chat.id, 'У вас ещё не открыт вклад. Перейдите во вкладку "Открыть вклад".')
+            else:
+                contribution_2 = open('C:\Питон\Bot\Photos/bank\money3.png', 'rb')
+                bot.send_photo(message.chat.id, contribution_2, f'Доход +0,1% в миннуту от суммы вклада\nМинимальная сумма вклада=1000$\nДенег на счете: {Users[str(message.chat.id)].bank_account}$' , reply_markup = keyboards.contribution_menu)
+                contribution_2.close()           
 
         elif message.text == 'Баланс 💰':
             bot.send_message(message.chat.id, f'{Users[str(message.chat.id)].balance}$')
         elif message.text == 'Магазин 🛒':
             bot.send_message(message.chat.id, 'Заходи-покупай!', reply_markup = keyboards.shop_menu)
             Users[str(message.chat.id)].current_keyboard = 'shop_menu'
+
+        #Банк    
+        elif message.text == 'Банк 🏦':
+            bot.send_message(message.chat.id, 'Давай заставим твои деньги работать!', reply_markup = keyboards.bank)
+            Users[str(message.chat.id)].current_keyboard = 'bank'
+        elif message.text == 'Внести деньги':
+            bot.send_message(message.chat.id, 'Внеси деньги', reply_markup = keyboards.make_money)
+            Users[str(message.chat.id)].current_keyboard = 'make_money'
+        elif message.text == 'Вывести деньги':
+            bot.send_message(message.chat.id, 'Выведи деньги', reply_markup = keyboards.withdraw_money)
+            Users[str(message.chat.id)].current_keyboard = 'withdraw_money'
+        elif message.text == 'Состояние счета':
+            bot.send_message(message.chat.id, f'У вас на счете: {Users[str(message.chat.id)].bank_account} $')
+        
+        #Транспорт
+        elif message.text == 'Транспорт 🚃':
+            bot.send_message(message.chat.id, 'Давай улучшим твой транспорт', reply_markup = keyboards.transport)
+            Users[str(message.chat.id)].current_keyboard = 'transport'
+        elif message.text == 'Вагонетка первого уровня':
+            trolley_lvl1 = open('C:\Питон\Bot\Photos/transport/trolley_lvl1.png', 'rb')
+            bot.send_photo(message.chat.id, trolley_lvl1, 'Стоимость: 1000$\nУвеличивает кол-во выпадаемых ресурсов на 25%', reply_markup = keyboards.trolley_lvl1)
+            trolley_lvl1.close()
+        elif message.text == 'Вагонетка второго уровня':
+            trolley_lvl2 = open('C:\Питон\Bot\Photos/transport/trolley_lvl2.png', 'rb')
+            bot.send_photo(message.chat.id, trolley_lvl2, 'Стоимость: 2500$\nУвеличивает кол-во выпадаемых ресурсов на 50%', reply_markup = keyboards.trolley_lvl2)
+            trolley_lvl2.close()
+        elif message.text == 'Вагонетка третьего уровня':
+            trolley_lvl3 = open('C:\Питон\Bot\Photos/transport/trolley_lvl3.png', 'rb')
+            bot.send_photo(message.chat.id, trolley_lvl3, 'Стоимость: 5000$\nУвеличивает кол-во выпадаемых ресурсов на 75%', reply_markup = keyboards.trolley_lvl3)
+            trolley_lvl3.close()
+        elif message.text == 'Вагонетка четвёртого уровня':
+            trolley_lvl4 = open('C:\Питон\Bot\Photos/transport/trolley_lvl4.jpg', 'rb')
+            bot.send_photo(message.chat.id, trolley_lvl4, 'Стоимость: 10000$\nУвеличивает кол-во выпадаемых ресурсов на 100%', reply_markup = keyboards.trolley_lvl4)                
+            trolley_lvl4.close()
+
+
+        #Ввод и вывод денег со счета    
+        elif message.text == '1000$':
+            if Users[str(message.chat.id)].current_keyboard == 'make_money':
+                if Users[str(message.chat.id)].balance >= 1000:
+                   Users[str(message.chat.id)].balance -= 1000
+                   Users[str(message.chat.id)].bank_account += 1000
+                   bot.send_message(message.chat.id, 'Вы внесли 1000$ в свой вклад')
+                else:
+                   bot.send_message(message.chat.id, 'У вас не достаточно средств')
+
+            elif Users[str(message.chat.id)].current_keyboard == 'withdraw_money':
+                if Users[str(message.chat.id)].bank_account >= 1000:
+                   Users[str(message.chat.id)].bank_account -= 1000
+                   Users[str(message.chat.id)].balance += 1000
+                   bot.send_message(message.chat.id, 'Вы вывели 1000$ со своего вклада')
+                else:
+                   bot.send_message(message.chat.id, 'У вас не достаточно средств')
+        elif message.text == '5000$':
+            if Users[str(message.chat.id)].current_keyboard == 'make_money':
+                if Users[str(message.chat.id)].balance >= 5000:
+                   Users[str(message.chat.id)].balance -= 5000
+                   Users[str(message.chat.id)].bank_account += 5000
+                   bot.send_message(message.chat.id, 'Вы внесли 5000$ в свой вклад')
+                else:
+                   bot.send_message(message.chat.id, 'У вас не достаточно средств')
+
+            elif Users[str(message.chat.id)].current_keyboard == 'withdraw_money':
+                if Users[str(message.chat.id)].bank_account >= 5000:
+                   Users[str(message.chat.id)].bank_account -= 5000
+                   Users[str(message.chat.id)].balance += 5000
+                   bot.send_message(message.chat.id, 'Вы вывели 50000$ со своего вклада')
+                else:
+                   bot.send_message(message.chat.id, 'У вас не достаточно средств')
+        elif message.text == '10000$':
+            if Users[str(message.chat.id)].current_keyboard == 'make_money':
+                if Users[str(message.chat.id)].balance >= 10000:
+                   Users[str(message.chat.id)].balance -= 10000
+                   Users[str(message.chat.id)].bank_account += 10000
+                   bot.send_message(message.chat.id, 'Вы внесли 10000$ в свой вклад')
+                else:
+                   bot.send_message(message.chat.id, 'У вас не достаточно средств')
+
+            elif Users[str(message.chat.id)].current_keyboard == 'withdraw_money':
+                if Users[str(message.chat.id)].bank_account >= 10000:
+                   Users[str(message.chat.id)].bank_account -= 10000
+                   Users[str(message.chat.id)].balance += 10000
+                   bot.send_message(message.chat.id, 'Вы вывели 10000$ со своего вклада')
+                else:
+                   bot.send_message(message.chat.id, 'У вас не достаточно средств')                                 
+
+
+            
         elif message.text == 'Еда 🍗':
             bot.send_message(message.chat.id, 'Давай съедим что-нибудь', reply_markup = keyboards.food_shop_menu)
             Users[str(message.chat.id)].current_keyboard = 'food_shop_menu'        
@@ -212,6 +350,7 @@ try:
         elif message.text == 'Кирка':
              bot.send_message(message.chat.id, 'Давай улучшим твою кирку', reply_markup = keyboards.pickaxes)
              Users[str(message.chat.id)].current_keyboard = 'pickaxes'
+        #Вывод клавиатур "Шахтер"     
         elif message.text == 'Шахтер':
              bot.send_message(message.chat.id, 'Давай улучшим твоего шахтера', reply_markup = keyboards.upgrade_miner)
              Users[str(message.chat.id)].current_keyboard = 'upgrade_miner'
@@ -253,7 +392,22 @@ try:
                 Users[str(message.chat.id)].current_keyboard = 'shop_menu'
             elif Users[str(message.chat.id)].current_keyboard == 'helmet' or Users[str(message.chat.id)].current_keyboard == 'vest' or Users[str(message.chat.id)].current_keyboard == 'pants' or Users[str(message.chat.id)].current_keyboard == 'boots':
                 bot.send_message(message.chat.id, 'Назад 🔙', reply_markup = keyboards.upgrade_miner)
-                Users[str(message.chat.id)].current_keyboard = 'upgrade_miner'               
+                Users[str(message.chat.id)].current_keyboard = 'upgrade_miner'
+            elif Users[str(message.chat.id)].current_keyboard == 'bank':
+                bot.send_message(message.chat.id, 'Назад 🔙', reply_markup = keyboards.miner_menu)
+                Users[str(message.chat.id)].current_keyboard = 'miner_menu'
+            elif Users[str(message.chat.id)].current_keyboard == 'contribution_menu':
+                bot.send_message(message.chat.id, 'Назад 🔙', reply_markup = keyboards.bank)
+                Users[str(message.chat.id)].current_keyboard = 'bank'
+            elif Users[str(message.chat.id)].current_keyboard == 'make_money':
+                bot.send_message(message.chat.id, 'Назад 🔙', reply_markup = keyboards.contribution_menu)
+                Users[str(message.chat.id)].current_keyboard = 'contribution_menu'
+            elif Users[str(message.chat.id)].current_keyboard == 'withdraw_money':
+                bot.send_message(message.chat.id, 'Назад 🔙', reply_markup = keyboards.contribution_menu)
+                Users[str(message.chat.id)].current_keyboard = 'contribution_menu'
+            elif Users[str(message.chat.id)].current_keyboard == 'transport':
+                bot.send_message(message.chat.id, 'Назад 🔙', reply_markup = keyboards.upgrade)
+                Users[str(message.chat.id)].current_keyboard = 'upgrade'                                  
         elif message.text == 'soon':
             bot.send_message(message.chat.id, 'В разработке')
         else:
@@ -430,12 +584,57 @@ try:
                 answer = 'Вы приобрели Дорогие ботинки'
                 Users[str(call.message.chat.id)].change_boots('expensive_shoes')
             else:
-                answer = 'У вас не хватает денег'                                                                                   
+                answer = 'У вас не хватает денег'
+        
+        #Банк
+        elif call.data == 'contribution':
+            if not(Users[str(call.message.chat.id)].bank_account == 0):
+                answer = 'Вклад уже открыт. Чтобы узнать информацию о нём перейдите во вкладку "Ваш вклад"'
+            elif Users[str(call.message.chat.id)].balance >= 1000:
+                Users[str(call.message.chat.id)].balance -= 1000
+                Users[str(call.message.chat.id)].bank_account += 1000 
+                answer = 'Ваш счет открыт'
+            else:
+                answer = 'У вас не хватает денег'
+
+        #Транспорт
+        elif call.data == 'trolley_lvl1':
+            if Users[str(call.message.chat.id)].balance >= 1000:
+                Users[str(call.message.chat.id)].balance -= 1000 
+                answer = 'Вы приобрели вагонетку первого уровня'
+                Users[str(call.message.chat.id)].percent = 1.25
+            else:
+                answer = 'У вас не хватает денег'
+        elif call.data == 'trolley_lvl2':
+            if Users[str(call.message.chat.id)].balance >= 2500:
+                Users[str(call.message.chat.id)].balance -= 2500 
+                answer = 'Вы приобрели вагонетку второго уровня'
+                Users[str(call.message.chat.id)].percent = 1.5
+            else:
+                answer = 'У вас не хватает денег'
+        elif call.data == 'trolley_lvl3':
+            if Users[str(call.message.chat.id)].balance >= 5000:
+                Users[str(call.message.chat.id)].balance -= 5000 
+                answer = 'Вы приобрели вагонетку третьего уровня'
+                Users[str(call.message.chat.id)].percent = 1.75
+            else:
+                answer = 'У вас не хватает денег'
+        elif call.data == 'trolley_lvl4':
+            if Users[str(call.message.chat.id)].balance >= 10000:
+                Users[str(call.message.chat.id)].balance -= 10000 
+                answer = 'Вы приобрели вагонетку четвёртого уровня'
+                Users[str(call.message.chat.id)].percent = 2
+            else:
+                answer = 'У вас не хватает денег'                        
+
+
+
         bot.send_message(call.message.chat.id, answer) 
                 
     bot.infinity_polling(True)     
-    sys.stdin.read()
+    time1.cancel()
+    exit()
 
-except KeyboardInterrupt:
-    time.cancel()
+except:
+    time1.cancel()
     exit()

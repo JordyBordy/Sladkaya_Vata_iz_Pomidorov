@@ -15,6 +15,8 @@ class Player():
         self.stamina = 20
         self.stamina_max = 20
         self.current_keyboard = 'main'
+        self.bank_account = 0
+        self.percent = 1
 
     def recount_stamina_max(self):
         self.stamina_max = 20
@@ -90,32 +92,35 @@ class Player():
             chance_of_other = 1 - (CHANCES['CHANCE_OF_COAL'] - 0.2 + CHANCES['CHANCE_OF_CREEPER'])
             chance_of_coal = CHANCES['CHANCE_OF_COAL'] - 0.2
 
+
+
         random_minerals = random.randint(1, number_of_chance)
 
         if 1 <= random_minerals <= number_of_chance * chance_of_coal:
-            amount_of_minerals = random.randint(1, 5)
+            amount_of_minerals = random.randint(1, int(5 * self.percent))
             self.balance += amount_of_minerals * COSTS['COST_OF_COAL']
             return f'{minerals_list[0]} x {amount_of_minerals}'
 
         elif number_of_chance * chance_of_coal + 1 <= random_minerals <= number_of_chance * (chance_of_other * CHANCES['CHANCE_OF_IRON'] + chance_of_coal):
-            amount_of_minerals = random.randint(1, 5)  
+            amount_of_minerals = random.randint(1, int(5 * self.percent))  
             self.balance += amount_of_minerals * COSTS['COST_OF_IRON']
             return f'{minerals_list[1]} x {amount_of_minerals}'
 
         elif number_of_chance * (chance_of_other * CHANCES['CHANCE_OF_IRON'] + chance_of_coal) + 1 <= random_minerals <= number_of_chance * (chance_of_other * (CHANCES['CHANCE_OF_IRON'] + CHANCES['CHANCE_OF_GOLD']) + chance_of_coal):
-            amount_of_minerals = random.randint(1, 4)
+            amount_of_minerals = random.randint(1, int(4 * self.percent))
             self.balance += amount_of_minerals * COSTS['COST_OF_GOLD']
             return f'{minerals_list[2]} x {amount_of_minerals}'
 
         elif number_of_chance * (chance_of_other * (CHANCES['CHANCE_OF_IRON'] + CHANCES['CHANCE_OF_GOLD']) + chance_of_coal) + 1 <= random_minerals <= number_of_chance * (chance_of_other * (CHANCES['CHANCE_OF_IRON'] + CHANCES['CHANCE_OF_GOLD'] + CHANCES['CHANCE_OF_DIAMOND']) + chance_of_coal):  
-            amount_of_minerals = random.randint(1, 3)
+            amount_of_minerals = random.randint(1, int(3 * self.percent))
             self.balance += amount_of_minerals * COSTS['COST_OF_DIAMOND']
             return f'{minerals_list[3]} x {amount_of_minerals}'
 
-        else:
-            creeper_Igor = open('C:\JordyBordy\Всякая херня\Игорь Крипер.png', 'rb')   
-            creeper_Igor.close()  
+        else: 
             return 'creeper'
 
+    def income(self):
+        self.balance += int(self.bank_account * 0.001)
+
     def info(self):
-        return (self.pickaxe, 'Ваша кирка')  
+        return (self.pickaxe, 'Ваша кирка') 

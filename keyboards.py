@@ -7,6 +7,7 @@ class Keyboards():
         #Клавиатуры общие
         self.main = telebot.types.ReplyKeyboardMarkup(True)
         self.main.row('Привет', 'Как дела?', 'Пока', 'Игры 🎮')
+
         self.game = telebot.types.ReplyKeyboardMarkup(True)
         self.game.row('Случайное число 🎲', 'Шахтер Игорь', 'soon')
         self.game.row('Назад 🔙')
@@ -14,7 +15,7 @@ class Keyboards():
         #Клавиатуры для Шахтера
         self.miner_menu = telebot.types.ReplyKeyboardMarkup(True)
         self.miner_menu.row('Копать ⛏', 'Улучшения ⬆', 'Баланс 💰')
-        self.miner_menu.row('Магазин 🛒')
+        self.miner_menu.row('Магазин 🛒', 'Банк 🏦')
         self.miner_menu.row('Инфо ℹ', 'Достижения 🎖')
         self.miner_menu.row('Назад 🔙')
 
@@ -22,20 +23,43 @@ class Keyboards():
         self.shop_menu.row('Еда 🍗', 'Строительные материалы 🧱')
         self.shop_menu.row('Назад 🔙')
 
+        self.bank = telebot.types.ReplyKeyboardMarkup(True)
+        self.bank.row('Открыть вклад')
+        self.bank.row('Ваш вклад')
+        self.bank.row('Назад 🔙')
+
+        self.contribution_menu = telebot.types.ReplyKeyboardMarkup(True)
+        self.contribution_menu.row('Внести деньги')
+        self.contribution_menu.row('Вывести деньги')
+        self.contribution_menu.row('Состояние счета')
+        self.contribution_menu.row('Назад 🔙')
+
+        self.make_money = telebot.types.ReplyKeyboardMarkup(True)
+        self.make_money.row('1000$', '5000$', '10000$')
+        self.make_money.row('Назад 🔙')
+
+        self.withdraw_money = telebot.types.ReplyKeyboardMarkup(True)
+        self.withdraw_money.row('1000$', '5000$', '10000$')
+        self.withdraw_money.row('Назад 🔙')
+
+
         self.food_shop_menu = telebot.types.ReplyKeyboardMarkup(True)
         self.food_shop_menu.row('Хлеб 🥖', 'Борщ 🍲', 'Кортофель с мясом 🥔🍖')
         self.food_shop_menu.row('Назад 🔙') 
 
         self.upgrade = telebot.types.ReplyKeyboardMarkup(True)
-        self.upgrade.row('Шахтер', 'Кирка')
+        self.upgrade.row('Шахтер', 'Кирка', 'Транспорт 🚃')
         self.upgrade.row('Назад 🔙')
 
+        #Клавиатуры для кнопки "Кирка"
         self.pickaxes = telebot.types.ReplyKeyboardMarkup(True)
         self.pickaxes.row('Каменная кирка')
         self.pickaxes.row('Железная кирка')
         self.pickaxes.row('Золотая кирка')
         self.pickaxes.row('Алмазная кирка')
         self.pickaxes.row('Назад 🔙')
+
+        #Клавиатуры для кнопки "Шахтер"
 
         self.upgrade_miner = telebot.types.ReplyKeyboardMarkup(True)
         self.upgrade_miner.row('Каска')
@@ -72,6 +96,16 @@ class Keyboards():
         self.boots.row('Дорогие ботинки')
         self.boots.row('Назад 🔙')
 
+        #Клавиатуры для кнопки "Транспорт"
+        self.transport = telebot.types.ReplyKeyboardMarkup(True)
+        self.transport.row('Вагонетка первого уровня')
+        self.transport.row('Вагонетка второго уровня')
+        self.transport.row('Вагонетка третьего уровня')
+        self.transport.row('Вагонетка четвёртого уровня')
+        self.transport.row('Назад 🔙')
+
+
+        #Инлайн клавиатуры
 
         #Инлайн клавиатуры для шахтера
 
@@ -151,3 +185,20 @@ class Keyboards():
 
         self.buy_expensive_shoes = telebot.types.InlineKeyboardMarkup(True)
         self.buy_expensive_shoes.add(telebot.types.InlineKeyboardButton(text = 'Купить', callback_data = 'expensive_s'))
+
+        #Инлайн клавиатуры для банка
+        self.contribution = telebot.types.InlineKeyboardMarkup(True)
+        self.contribution.add(telebot.types.InlineKeyboardButton(text = 'Открыть вклад', callback_data = 'contribution'))
+
+        #Транспорт
+        self.trolley_lvl1 = telebot.types.InlineKeyboardMarkup(True)
+        self.trolley_lvl1.add(telebot.types.InlineKeyboardButton(text = 'Купить', callback_data = 'trolley_lvl1'))
+
+        self.trolley_lvl2 = telebot.types.InlineKeyboardMarkup(True)
+        self.trolley_lvl2.add(telebot.types.InlineKeyboardButton(text = 'Купить', callback_data = 'trolley_lvl2'))
+
+        self.trolley_lvl3 = telebot.types.InlineKeyboardMarkup(True)
+        self.trolley_lvl3.add(telebot.types.InlineKeyboardButton(text = 'Купить', callback_data = 'trolley_lvl3'))
+
+        self.trolley_lvl4 = telebot.types.InlineKeyboardMarkup(True)
+        self.trolley_lvl4.add(telebot.types.InlineKeyboardButton(text = 'Купить', callback_data = 'trolley_lvl4'))
